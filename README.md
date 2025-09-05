@@ -3,7 +3,7 @@
 
     ./mixture_preprocess.sh -s sample_basename
 
-in which "All.chr.EAS.recode.vcf.gz" is accessed from the 1000G project and obtained by merging vcf files from all chromosomes and extracting peoples from East Asian populations using vcftools, RNAedit_pos.txt contained the positions of SNPs with editing events accessed from REDIportal, and "imprintgene_pos.txt" contained the position of imprint gene.
+in this code, "All.chr.EAS.recode.vcf.gz" is accessed from the 1000G project and obtained by merging vcf files from all chromosomes and extracting peoples from East Asian populations using vcftools, RNAedit_pos.txt contained the positions of SNPs with editing events accessed from REDIportal, and "imprintgene_pos.txt" contained the position of imprint gene.
 
 3. The SNP deconvolution for two-body-fluid mixture should be performed through the following code:
 
