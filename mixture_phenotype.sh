@@ -11,7 +11,7 @@
 # This function now receives all five parameters for processing.
 mix_phenotype() {
   # Assign the five incoming parameters to local variables for readability and ease of use
-  local id="$1"
+  local sample_id="$1"
   local bf_Fst="$2"
   local bf_Sec="$3"
   local bed_file_Fst="$4"
@@ -20,9 +20,9 @@ mix_phenotype() {
     
  #
  # v v v v v v v v v v v v v v v v v v v v v v v v v v v
-    mkdir mixture/result
-    mkdir mixture/${bf_Fst}/${sample_id}
-    mkdir mixture/${bf_Sec}/${sample_id}
+    mkdir -p mixture/result
+    mkdir -p mixture/${bf_Fst}/${sample_id}
+    mkdir -p mixture/${bf_Sec}/${sample_id}
     bed_file="${bed_file_Fst}" 
     vcf_file="${sample_id}.dpmaf.recode.vcf"
     #extract the SNP from target genes
@@ -55,8 +55,7 @@ mix_phenotype() {
     vcftools --vcf "$vcf_file" --chr "$chr" --from-bp "$start" --to-bp "$end" --recode --recode-INFO-all --out mixture/${bf_Sec}/${sample_id}/"${region_name//\//_}"
     done < "$bed_file"
     
-    find mixture/${bf_Fst}/${sample_id} -type f -size -173927c | xargs rm -f
-    find mixture/${bf_Sec}/${sample_id} -type f -size -173927c | xargs rm -f
+
     #transform the files
     ls mixture/${bf_Fst}/${sample_id}/*.recode.vcf | while read id; do bcftools query -f '%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QUAL\t%FILTER[\t%GT]\n' $id > mixture/${bf_Fst}/${sample_id}/$(basename $id ".recode.vcf").vcf; done
     ls mixture/${bf_Sec}/${sample_id}/*.recode.vcf | while read id; do bcftools query -f '%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QUAL\t%FILTER[\t%GT]\n' $id > mixture/${bf_Sec}/${sample_id}/$(basename $id ".recode.vcf").vcf; done
@@ -142,7 +141,7 @@ while [ "$#" -gt 0 ]; do
     -bS)  BED_SEC="$2"; shift 2 ;;
     *)
       echo "Error: Unknown or invalid option: $1" >&2
-      echo "Usage: $0 -s <SampleID> -cF <ID_A> -cS <ID_B> -c <path/to/C.bed> -d <path/to/D.bed>" >&2
+      echo "Usage: $0 -s <SampleID> -cF <BF_FST> -cS <BF_SEC> -bF <path/to/BED_FST.bed> -bS <path/to/BED_SEC.bed>" >&2
       exit 1
       ;;
   esac
@@ -151,13 +150,13 @@ done
 
 # --- PART 3: MAIN EXECUTION LOGIC ---
 # Check if all required parameters have been provided
-if [ -z "$SAMPLE_ID" ] || [ -z "$ID_A" ] || [ -z "$ID_B" ] || [ -z "$BED_C" ] || [ -z "$BED_D" ]; then
+if [ -z "$SAMPLE_ID" ] || [ -z "$BF_FST" ] || [ -z "$BF_SEC" ] || [ -z "$BED_FST" ] || [ -z "$BED_SEC" ]; then
   echo "Error: Missing required arguments." >&2
-  echo "Usage: $0 -s <SampleID> -cF <ID_A> -cS <ID_B> -c <path/to/C.bed> -d <path/to/D.bed>" >&2
+  echo "Usage: $0 -s <SampleID> -cF <BF_FST> -cS <BF_SEC> -bF <path/to/BED_FST.bed> -bS <path/to/BED_SEC.bed>" >&2
   exit 1
 else
   # If all parameters have been provided, call the processing function
-  mix_phenotype "$SAMPLE_ID" "$ID_A" "$ID_B" "$BED_C" "$BED_D"
+  mix_phenotype "$SAMPLE_ID" "$BF_FST" "$BF_SEC" "$BED_FST" "$BED_SEC"
 fi
 
 echo "----------------------------------------"
